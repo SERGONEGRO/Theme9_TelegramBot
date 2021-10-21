@@ -28,13 +28,14 @@ namespace Theme9_TelegramBot
     class Program
     {
         static TelegramBotClient bot;
-        static string path = @"d:\\bot\";
+        static string path = @"E:\\bot\";
 
         static void Main(string[] args)
         {
-            string token = File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
+            string token = File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
 
             bot = new TelegramBotClient(token);
+            bot.SendTextMessageAsync($"Приветствую тебя, {e.Message.Chat.FirstName}",
             bot.OnMessage += MessageListener;
             bot.StartReceiving();
             Console.ReadKey();
@@ -45,55 +46,100 @@ namespace Theme9_TelegramBot
 
             Console.WriteLine($"{text} TypeMessage: {e.Message.Type.ToString()}");
 
-            //документы
-            if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Document)
+            var messageText = "Вышли мне что нибудь";    //для ответа
+            try
             {
-                Console.WriteLine(e.Message.Document.FileId);
-                Console.WriteLine(e.Message.Document.FileName);
-                Console.WriteLine(e.Message.Document.FileSize);
-                string pathDocument = path + e.Message.Document.FileName;
-                DownLoad(e.Message.Document.FileId, pathDocument);
-                Console.WriteLine($"Файл загружен в {pathDocument}");
-            }
+                switch (e.Message.Type)
+                {
+                    case Telegram.Bot.Types.Enums.MessageType.Audio:
+                        {
+                            string pathAudio = path + e.Message.Audio.FileName;
+                            DownLoad(e.Message.Audio.FileId, pathAudio);
+                            messageText = "Файл " + e.Message.Audio.FileName +
+                                        "\nТип " + e.Message.Type +
+                                     ", Размер " + e.Message.Audio.FileSize +
+                            " байт \nЗагружен в " + pathAudio;
+                            break;
+                        };
+                    case Telegram.Bot.Types.Enums.MessageType.Document:
+                        {
+                            string pathDocument = path + e.Message.Document.FileName;
+                            DownLoad(e.Message.Document.FileId, pathDocument);
+                            messageText = "Файл " + e.Message.Document.FileName +
+                                        "\nТип " + e.Message.Type +
+                                     ", Размер " + e.Message.Document.FileSize +
+                            " байт \nЗагружен в " + pathDocument;
+                            break;
+                        };
+                    case Telegram.Bot.Types.Enums.MessageType.Video:
+                        {
+                            string pathVideo = path + e.Message.Video.FileName;
+                            DownLoad(e.Message.Video.FileId, pathVideo);
+                            messageText = "Файл " + e.Message.Video.FileName +
+                                        "\nТип " + e.Message.Type +
+                                     ", Размер " + e.Message.Video.FileSize +
+                            " байт \nЗагружен в " + pathVideo;
+                            break;
+                        };
+                    case Telegram.Bot.Types.Enums.MessageType.Sticker:
+                        {
+                            string pathSticker = path + e.Message.Sticker.Emoji;
+                            DownLoad(e.Message.Sticker.FileId, pathSticker);
+                            messageText = "Файл " + e.Message.Sticker.Emoji +
+                                        "\nТип " + e.Message.Type +
+                                     ", Размер " + e.Message.Sticker.FileSize +
+                            " байт \nЗагружен в " + pathSticker;
+                            break;
+                        };
+                    default:
+                        {
+                            messageText = "Такие файлы я еще не могу принимать!";
+                            break;
+                        }
 
-            //Аудио
-            if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Audio)
+                        //Где ID и NAME,...?
+                    //case Telegram.Bot.Types.Enums.MessageType.Photo:
+                    //    {
+                    //        string pathPhoto = path + e.Message.Photo;
+                    //        DownLoad(e.Message.Photo., pathPhoto);
+                    //        messageText = "Файл" + e.Message.Photo.Length +
+                    //                    "\nТип " + e.Message.Type +
+                    //                 ", Размер " + e.Message.Photo.Length +
+                    //        "байт \nЗагружен в " + pathPhoto;
+                    //        break;
+                    //    };
+
+                }
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine(e.Message.Document.FileId);
-                Console.WriteLine(e.Message.Document.FileName);
-                Console.WriteLine(e.Message.Document.FileSize);
-
-                DownLoad(e.Message.Document.FileId, e.Message.Document.FileName);
+                messageText = ex.Message;
+                throw;
             }
+            
+         
+            //if (e.Message.Text == null) return;
 
-            //видео
-            if (e.Message.Type == Telegram.Bot.Types.Enums.MessageType.Video)
-            {
-                Console.WriteLine(e.Message.Document.FileId);
-                Console.WriteLine(e.Message.Document.FileName);
-                Console.WriteLine(e.Message.Document.FileSize);
-
-                DownLoad(e.Message.Document.FileId, e.Message.Document.FileName);
-            }
-
-            if (e.Message.Text == null) return;
-
-            var messageText = e.Message.Text;
-
-
-            bot.SendTextMessageAsync(e.Message.Chat.Id,
-                $"Сам {messageText}"
-                );
+            
+            bot.SendTextMessageAsync(e.Message.Chat.Id, messageText);
         }
 
         static async void DownLoad(string fileId, string path)
         {
-            var file = await bot.GetFileAsync(fileId);
-            FileStream fs = new FileStream(path, FileMode.Create);
-            await bot.DownloadFileAsync(file.FilePath, fs);
-            fs.Close();
+            try
+            {
+                var file = await bot.GetFileAsync(fileId);
+                FileStream fs = new FileStream(path, FileMode.Create);
+                await bot.DownloadFileAsync(file.FilePath, fs);
+                fs.Close();
 
-            fs.Dispose();
+                fs.Dispose();
+            }
+            catch (Exception ex)
+            {
+                if (ex != null) Console.WriteLine(ex.Message);
+            }
+            
         }
 
     }
