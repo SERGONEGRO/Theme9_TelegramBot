@@ -7,6 +7,10 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Args;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Types;
 
 // Создать бота, позволяющего принимать разные типы файлов, 
 // *Научить бота отправлять выбранный файл в ответ
@@ -28,67 +32,94 @@ namespace Theme9_TelegramBot
     class Program
     {
         static TelegramBotClient bot;
-        static string path = @"E:\\bot\";
+        static string path = @"D:\\bot\";
 
         static void Main(string[] args)
         {
-            string token = File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
+            //string token = File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
+            string token = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
 
             bot = new TelegramBotClient(token);
-            bot.SendTextMessageAsync($"Приветствую тебя, {e.Message.Chat.FirstName}",
+            var me = bot.GetMeAsync().Result;
+            Console.WriteLine(me.FirstName);
+
             bot.OnMessage += MessageListener;
+            bot.OnCallbackQuery += BotOnCallbackQueryReceived;
             bot.StartReceiving();
             Console.ReadKey();
         }
-        private static void MessageListener(object sender, Telegram.Bot.Args.MessageEventArgs e)
-        {
-            string text = $"{DateTime.Now.ToLongTimeString()}: {e.Message.Chat.FirstName} {e.Message.Chat.Id} {e.Message.Text}";
 
-            Console.WriteLine($"{text} TypeMessage: {e.Message.Type.ToString()}");
+        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
+        {
+            string buttonText = e.CallbackQuery.Data;
+            string name = $"{e.CallbackQuery.From.FirstName} {e.CallbackQuery.From.LastName}";
+            Console.WriteLine($"{name} нажал кнопку {buttonText}");
+
+            await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, $"Вы нажали кнопку {buttonText}");
+        }
+
+        private static async void MessageListener(object sender, MessageEventArgs e)
+        {
+            var message = e.Message;
+            string name = $"{message.From.FirstName} {message.From.LastName}";
+
+            string text = $"{DateTime.Now.ToLongTimeString()}:<< {name} {message.Chat.Id}  *{message.Text}*";
+
+            Console.WriteLine($"{text} TypeMessage: {message.Type.ToString()}");
 
             var messageText = "Вышли мне что нибудь";    //для ответа
             try
             {
-                switch (e.Message.Type)
+                switch (message.Type)
                 {
-                    case Telegram.Bot.Types.Enums.MessageType.Audio:
+                    case MessageType.Audio:   //Если пришло аудио
                         {
-                            string pathAudio = path + e.Message.Audio.FileName;
-                            DownLoad(e.Message.Audio.FileId, pathAudio);
-                            messageText = "Файл " + e.Message.Audio.FileName +
-                                        "\nТип " + e.Message.Type +
-                                     ", Размер " + e.Message.Audio.FileSize +
-                            " байт \nЗагружен в " + pathAudio;
+                            string pathAudio = path + message.Audio.FileName;
+                            DownLoad(message.Audio.FileId, pathAudio);
+                            messageText = "Файл " + message.Audio.FileName +
+                                        " Тип " + message.Type +
+                                     ", Размер " + message.Audio.FileSize +
+                            " байт, Загружен в " + pathAudio;
                             break;
                         };
-                    case Telegram.Bot.Types.Enums.MessageType.Document:
+                    case MessageType.Document:   //Если пришло документ
                         {
-                            string pathDocument = path + e.Message.Document.FileName;
-                            DownLoad(e.Message.Document.FileId, pathDocument);
-                            messageText = "Файл " + e.Message.Document.FileName +
-                                        "\nТип " + e.Message.Type +
-                                     ", Размер " + e.Message.Document.FileSize +
-                            " байт \nЗагружен в " + pathDocument;
+                            string pathDocument = path + message.Document.FileName;
+                            DownLoad(message.Document.FileId, pathDocument);
+                            messageText = "Файл " + message.Document.FileName +
+                                        " Тип " + message.Type +
+                                     ", Размер " + message.Document.FileSize +
+                            " байт, Загружен в " + pathDocument;
                             break;
                         };
-                    case Telegram.Bot.Types.Enums.MessageType.Video:
+                    case MessageType.Video:    //Если пришло видео
                         {
-                            string pathVideo = path + e.Message.Video.FileName;
-                            DownLoad(e.Message.Video.FileId, pathVideo);
-                            messageText = "Файл " + e.Message.Video.FileName +
-                                        "\nТип " + e.Message.Type +
-                                     ", Размер " + e.Message.Video.FileSize +
-                            " байт \nЗагружен в " + pathVideo;
+                            if (e.Message.Video.FileSize < 20000000)
+                            {
+                                string fileNameVideo = message.Video.FileUniqueId + ".mp4";
+                                string pathVideo = path + fileNameVideo;
+                                DownLoad(message.Video.FileId, pathVideo);
+
+                                messageText = "Файл " + fileNameVideo +
+                                            " Тип " + message.Type +
+                                         ", Размер " + message.Video.FileSize +
+                                " байт, Загружен в " + pathVideo;
+                            }
+                            else
+                            {
+                                messageText = "Неосилю, слишком большой файл!";
+                            }
+
                             break;
                         };
-                    case Telegram.Bot.Types.Enums.MessageType.Sticker:
+                    case MessageType.Sticker:            //Если пришло стикер
                         {
-                            string pathSticker = path + e.Message.Sticker.Emoji;
-                            DownLoad(e.Message.Sticker.FileId, pathSticker);
-                            messageText = "Файл " + e.Message.Sticker.Emoji +
-                                        "\nТип " + e.Message.Type +
-                                     ", Размер " + e.Message.Sticker.FileSize +
-                            " байт \nЗагружен в " + pathSticker;
+                            string pathSticker = path + message.Sticker.Emoji;
+                            DownLoad(message.Sticker.FileId, pathSticker);
+                            messageText = "Файл " + message.Sticker.Emoji +
+                                        "Тип " + message.Type +
+                                     ", Размер " + message.Sticker.FileSize +
+                            " байт, Загружен в " + pathSticker;
                             break;
                         };
                     default:
@@ -97,17 +128,78 @@ namespace Theme9_TelegramBot
                             break;
                         }
 
-                        //Где ID и NAME,...?
-                    //case Telegram.Bot.Types.Enums.MessageType.Photo:
-                    //    {
-                    //        string pathPhoto = path + e.Message.Photo;
-                    //        DownLoad(e.Message.Photo., pathPhoto);
-                    //        messageText = "Файл" + e.Message.Photo.Length +
-                    //                    "\nТип " + e.Message.Type +
-                    //                 ", Размер " + e.Message.Photo.Length +
-                    //        "байт \nЗагружен в " + pathPhoto;
-                    //        break;
-                    //    };
+                    //Photo
+                    case MessageType.Photo:       ////Если пришло фото
+                        {
+                            string fileNamePhoto = message.Photo[message.Photo.Length - 1].FileUniqueId + ".jpeg";
+                            string fileIdPhoto = message.Photo[message.Photo.Length - 1].FileId;
+                            string pathPhoto = path + fileNamePhoto;
+                            DownLoad(fileIdPhoto, pathPhoto);
+                            messageText = "Файл " + fileNamePhoto +
+                                        " Тип " + message.Type +
+                                    // ", Размер " + e.Message.Document.FileSize +   ??
+                            ", Загружен в " + pathPhoto;
+                            break;
+                        };
+
+                    case MessageType.Text:  //Если текст, то :
+                        {
+                            switch (message.Text)
+                            {
+                                case "/start":
+                                    messageText = @"ВАС ПРИВЕТСВУЕТ MEGABOT
+Cписок команд:
+/start - запуск бота
+/inline - вывод меню
+/keyboard - вывод клавиатуры";
+                                   await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
+
+                                    break;
+
+                                case "/inline":
+                                    var inlinekeyboard = new InlineKeyboardMarkup(new[]
+                                    {
+                                        new[]
+                                        {
+                                            InlineKeyboardButton.WithUrl("MySite","http://nice-honey.com/"),
+                                            InlineKeyboardButton.WithUrl("Telegram","https://t.me/sergonegro"),
+                                        },
+                                        new[]
+                                        {
+                                            InlineKeyboardButton.WithCallbackData("Пункт 1"),
+                                            InlineKeyboardButton.WithCallbackData("Пункт 2")
+                                        }
+                                    });
+                                    messageText = "Выберите пункт меню:";
+                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText,
+                                                                    replyMarkup:inlinekeyboard);   //Информационное сообщение в чат
+                                    break;
+
+                                case "/keyboard":
+                                    var replyKeyboard = new ReplyKeyboardMarkup(new[]
+                                    {
+                                        new[]
+                                        {
+                                            new KeyboardButton("Привет!"),
+                                            new KeyboardButton("Пока!")
+                                        },
+                                        new[]
+                                        {
+                                            new KeyboardButton("контакт"){RequestContact = true },
+                                            new KeyboardButton("Геолокация") {RequestLocation = true}
+                                        }
+                                    });
+                                    messageText = "Сообщение";
+                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText,
+                                                                    replyMarkup: replyKeyboard);   //Информационное сообщение в чат
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            break;
+                        }
 
                 }
             }
@@ -116,13 +208,11 @@ namespace Theme9_TelegramBot
                 messageText = ex.Message;
                 throw;
             }
+           
             
-         
-            //if (e.Message.Text == null) return;
-
             
-            bot.SendTextMessageAsync(e.Message.Chat.Id, messageText);
-        }
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()}:>> {message.Chat.FirstName} {message.Chat.Id} *{messageText}*");//Информационное сообщение в консоль
+        }       
 
         static async void DownLoad(string fileId, string path)
         {
