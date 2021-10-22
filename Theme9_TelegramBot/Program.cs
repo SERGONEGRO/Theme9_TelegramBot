@@ -11,6 +11,12 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types;
+using ApiAiSDK;
+using ApiAiSDK.Util;
+using ApiAiSDK.Model;
+using Newtonsoft.Json;
+using Google.Cloud.Dialogflow.V2;
+using Environment = System.Environment;
 
 // Создать бота, позволяющего принимать разные типы файлов, 
 // *Научить бота отправлять выбранный файл в ответ
@@ -29,17 +35,113 @@ using Telegram.Bot.Types;
 
 namespace Theme9_TelegramBot
 {
+    public class DialogflowManager
+    {
+
+        private string _userID;
+        private string _webRootPath;
+        private string _contentRootPath;
+        private string _projectId;
+        private SessionsClient _sessionsClient;
+        private SessionName _sessionName;
+
+        public DialogflowManager(string userID, string webRootPath, string contentRootPath, string projectId)
+        {
+            _userID = userID;
+            _webRootPath = webRootPath;
+            _contentRootPath = contentRootPath;
+            _projectId = projectId;
+            SetEnvironmentVariable();
+        }
+
+        private void SetEnvironmentVariable()
+        {
+            try
+            {
+                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", _contentRootPath + "\\Keys\\{THE_DOWNLOADED_JSON_FILE_HERE}.json");
+            }
+            catch (ArgumentNullException)
+            {
+                throw;
+            }
+            catch (ArgumentException)
+            {
+                throw;
+            }
+            catch (SecurityException)
+            {
+                throw;
+            }
+        }
+
+        private async Task CreateSession()
+        {
+            // Create client
+            _sessionsClient = await SessionsClient.CreateAsync();
+            // Initialize request argument(s)
+            _sessionName = new SessionName(_projectId, _userID);
+        }
+
+        public async Task<QueryResult> CheckIntent(string userInput, string LanguageCode = "en")
+        {
+            await CreateSession();
+            QueryInput queryInput = new QueryInput();
+            var queryText = new TextInput();
+            queryText.Text = userInput;
+            queryText.LanguageCode = LanguageCode;
+            queryInput.Text = queryText;
+
+            // Make the request
+            DetectIntentResponse response = await _sessionsClient.DetectIntentAsync(_sessionName, queryInput);
+            return response.QueryResult;
+
+        }
+
+    }
+
+
+
+   //И тогда это можно назвать так, например, чтобы обнаружить Intents
+
+     DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
+
+    _hostingEnvironment.WebRootPath,
+
+    _hostingEnvironment.ContentRootPath,
+
+    "{INSERT_AGENT_ID");
+
+
+    var dialogflowQueryResult = await dialogflow.CheckIntent("{INSERT_USER_INPUT}");
     class Program
     {
         static TelegramBotClient bot;
         static string path = @"D:\\bot\";
+        static ApiAi apiAi;
 
         static void Main(string[] args)
         {
             //string token = File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
-            string token = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
+            string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
+            //string tokenAi = System.IO.File.ReadAllText(@"small-talk-lckd-8c1d6b8922a0.json");
+            string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
+            
+            var dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.IO.File.ReadAllText(dialogFlowKeyFile));
+            var projectID = dic["project_id"];
+            var sessionID = dic["private_key_id"];
+           
+            var dialogFlowBuilder = new SessionsClientBuilder
+            {
+                CredentialsPath = dialogFlowKeyFile
+            };
+            var dialogFlowClient = dialogFlowBuilder.Build();
+           
+           
 
-            bot = new TelegramBotClient(token);
+            //AIConfiguration config = new AIConfiguration(tokenAi, SupportedLanguage.Russian);
+            //apiAi = new ApiAi(config);
+
+            bot = new TelegramBotClient(tokentg);
             var me = bot.GetMeAsync().Result;
             Console.WriteLine(me.FirstName);
 
@@ -195,6 +297,14 @@ Cписок команд:
                                     break;
 
                                 default:
+
+                                    DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
+                                    //var response = 
+                                    //var response = apiAi.TextRequest(message.Text);
+                                    //string answer = response.Result.Fulfillment.Speech;
+                                    //if (answer == "")
+                                    //    answer = "Сорян, не понял тебя.";
+                                    //await bot.SendTextMessageAsync(message.Chat.Id, answer);   //Информационное сообщение в чат
                                     break;
                             }
 
