@@ -116,14 +116,15 @@ namespace Theme9_TelegramBot
     class Program
     {
         static TelegramBotClient bot;
-        static string path = @"D:\\bot\";
+        static string path = @"E:\\bot\";
         static ApiAi apiAi;
         static DirectoryInfo directoryInfo = new DirectoryInfo(path);
+        static bool flag = false;   //flag = true, если ожидается ответ пользователя
 
         static void Main(string[] args)
         {
-            //string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
-            string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
+            string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
+            //string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
             //string tokenAi = System.IO.File.ReadAllText(@"small-talk-lckd-8c1d6b8922a0.json");
             //string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
             
@@ -160,12 +161,12 @@ namespace Theme9_TelegramBot
         private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
         {
             string buttonText = e.CallbackQuery.Data;
-            if (buttonText == "GetFileList")
-            {
-                GetDir(path).ToString();
-            //    await bot.SendTextMessageAsync(e.CallbackQuery.Id, GetDir(path).ToString());   //Информационное сообщение в чат
-            //    await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, GetDir(path).ToString(), true);
-            }
+            //if (buttonText == "GetFileList")
+            //{
+            //    GetDir(path).ToString();
+            ////    await bot.SendTextMessageAsync(e.CallbackQuery.Id, GetDir(path).ToString());   //Информационное сообщение в чат
+            ////    await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, GetDir(path).ToString(), true);
+            //}
             string name = $"{e.CallbackQuery.From.FirstName} {e.CallbackQuery.From.LastName}";
             Console.WriteLine($"{name} нажал кнопку {buttonText}");
 
@@ -182,17 +183,20 @@ namespace Theme9_TelegramBot
         {
             var message = e.Message;                                             //полученное сообщение
             string name = $"{message.From.FirstName} {message.From.LastName}";   //имя собеседника
-
+            
             string text = $"{DateTime.Now.ToLongTimeString()}:<< {name} {message.Chat.Id}  *{message.Text}*";    //для лога
 
             Console.WriteLine($"{text} TypeMessage: {message.Type.ToString()}");
 
-            var messageText =@"ВАС ПРИВЕТСВУЕТ MEGABOT
+            var messageText = @"ВАС ПРИВЕТСВУЕТ MEGABOT
 Вышли мне файл и я вышлю его тебе обратно!
 Cписок команд:
 /start - запуск бота
 /inline - вывод меню
-/keyboard - вывод клавиатуры";
+/keyboard - вывод клавиатуры
+/ShowMeFiles - просмотр файлов в наличии
+/GetFile - получить файл" + "\n"; 
+
             try
             {
                 switch (message.Type)
@@ -248,11 +252,6 @@ Cписок команд:
                             " байт, Загружен в " + pathSticker;
                             break;
                         };
-                    default:
-                        {
-                            messageText = "Такие файлы я еще не могу принимать!";
-                            break;
-                        }
 
                     //Photo
                     case MessageType.Photo:       ////Если пришло фото
@@ -263,28 +262,20 @@ Cписок команд:
                             DownLoad(fileIdPhoto, pathPhoto);
                             messageText = "Файл " + fileNamePhoto +
                                         " Тип " + message.Type +
-                                    // ", Размер " + e.Message.Document.FileSize +   ??
+                            // ", Размер " + e.Message.Document.FileSize +   ??
                             ", Загружен в " + pathPhoto;
+                            await bot.SendPhotoAsync(message.Chat.Id, fileIdPhoto);
                             break;
                         };
-
                     case MessageType.Text:  //Если текст, то :
                         {
                             switch (message.Text)
                             {
                                 case "/start":
-                                    messageText = @"ВАС ПРИВЕТСВУЕТ MEGABOT
-Вышли мне файл и я вышлю его тебе обратно!
-Cписок команд:
-/start - запуск бота
-/inline - вывод меню
-/keyboard - вывод клавиатуры
-/ShowMeFiles - просмотр файлов в наличии";
-                                   await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
-
+                                    await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
                                     break;
 
-                                case "/inline":
+                                case "/inline":    //инлайн-клавиатура(тест)
                                     var inlinekeyboard = new InlineKeyboardMarkup(new[]
                                     {
                                         new[]
@@ -299,12 +290,12 @@ Cписок команд:
                                         }
                                     }); ;
                                     messageText = "Выберите пункт меню:";
-                                    
+
                                     await bot.SendTextMessageAsync(message.Chat.Id, messageText,
-                                                                    replyMarkup:inlinekeyboard);   //Информационное сообщение в чат
+                                                                    replyMarkup: inlinekeyboard);   //Информационное сообщение в чат
                                     break;
 
-                                case "/keyboard":
+                                case "/keyboard":      //кнопки(тест)
                                     var replyKeyboard = new ReplyKeyboardMarkup(new[]
                                     {
                                         new[]
@@ -323,14 +314,24 @@ Cписок команд:
                                                                     replyMarkup: replyKeyboard);   //Информационное сообщение в чат
                                     break;
 
-                               
-                                case "/ShowMeFiles":
-                                    int i = 1;
+
+                                case "/ShowMeFiles":    //показывает все файлы в директории path
+
                                     foreach (var item in GetDir(path))
                                     {
                                         messageText += $"{item}\n";
                                     }
-                                   await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
+                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText);   
+                                    break;
+
+                                case "/GetFile":    //запрашивает файл
+                                    if (flag == false)
+                                    {
+                                        flag = true;
+                                        messageText = "Введите номер файла, который желаете получить:\n";
+                                        await bot.SendTextMessageAsync(message.Chat.Id, messageText);
+                                    }
+                                    else goto default;
                                     break;
 
                                 //DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
@@ -339,20 +340,71 @@ Cписок команд:
                                 //string answer = response.Result.Fulfillment.Speech;
                                 //if (answer == "")
                                 //    answer = "Сорян, не понял тебя.";
+
+
                                 default:
-                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
+                                    if (flag)
+                                    {
+                                        int fileNumber = Int32.Parse(message.Text);
+                                        
+                                        messageText = "Получение файла";
+                                        string currentFile = path + GetCurrentFile(fileNumber);
+                                        string extension = Path.GetExtension(currentFile); // определяем расширение
+                                        await bot.SendTextMessageAsync(message.Chat.Id, currentFile);
+                                        switch (extension)
+                                        {
+                                            //https://github.com/sergshu/LearnTogether/blob/master/TelegramBotIsSimple/TelegraBotHelper.cs
+
+                                            case ".mp3":
+                                                using (var stream = System.IO.File.OpenRead(currentFile))
+                                                {
+                                                    //await bot.SendTextMessageAsync(message.Chat.Id, currentFile);
+                                                    await bot.SendAudioAsync(message.Chat.Id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(stream));
+                                                }
+
+                                                //InputMediaAudio audioFile = new InputMediaAudio(currentFile);
+                                                ////InputMedia audioFile = new InputMedia(currentFile);
+                                                //await bot.SendAudioAsync(message.Chat.Id, currentFile);
+                                                break;
+                                            case "":
+                                                break;
+                                            //case "":
+                                            //    break;
+                                            //case "":
+                                            //    break;
+                                            //case "":
+                                            //    break;
+                                            default:
+                                                //bot.SendDocumentAsync(message.Chat.Id, currentFile);
+                                                break;
+
+                                        }
+                                        flag = false;
+                                    }
+                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //По умолчанию отсылает меню
+
                                     break;
                             }
 
                             break;
                         }
 
+                    default:
+                        {
+                            messageText = "Такие файлы я еще не могу принимать!";   //Если файл непонятный:
+                            break;
+                        }
+
+                    
+
+                   
+
                 }
             }
             catch (Exception ex)
             {
                 messageText = ex.Message;
-                throw;
+                //throw;
             }
            
             
@@ -386,13 +438,20 @@ Cписок команд:
             int i = 1;
             foreach (var item in directoryInfo.GetFiles())          // Перебираем все файлы текущего каталога
             {
-                string file = $"{i}. {trim}{item.Name}";
+                string file = $"{trim}{item.Name}";
                 files.Add(file);
                 i++;
-                Console.WriteLine(file);            // Выводим информацию о них
+                //Console.WriteLine(file);            // Выводим информацию о них
             }
 
             return files;
+        }
+
+        static string GetCurrentFile(int number)
+        {
+            List<string> files = GetDir(path);
+
+            return files[number - 1];
         }
 
     }
