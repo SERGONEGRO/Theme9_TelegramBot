@@ -35,106 +35,107 @@ using Environment = System.Environment;
 
 namespace Theme9_TelegramBot
 {
-    public class DialogflowManager
-    {
+    //public class DialogflowManager
+    //{
 
-        private string _userID;
-        private string _webRootPath;
-        private string _contentRootPath;
-        private string _projectId;
-        private SessionsClient _sessionsClient;
-        private SessionName _sessionName;
+    //    private string _userID;
+    //    private string _webRootPath;
+    //    private string _contentRootPath;
+    //    private string _projectId;
+    //    private SessionsClient _sessionsClient;
+    //    private SessionName _sessionName;
 
-        public DialogflowManager(string userID, string webRootPath, string contentRootPath, string projectId)
-        {
-            _userID = userID;
-            _webRootPath = webRootPath;
-            _contentRootPath = contentRootPath;
-            _projectId = projectId;
-            SetEnvironmentVariable();
-        }
+    //    public DialogflowManager(string userID, string webRootPath, string contentRootPath, string projectId)
+    //    {
+    //        _userID = userID;
+    //        _webRootPath = webRootPath;
+    //        _contentRootPath = contentRootPath;
+    //        _projectId = projectId;
+    //        SetEnvironmentVariable();
+    //    }
 
-        private void SetEnvironmentVariable()
-        {
-            try
-            {
-                Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", _contentRootPath + "\\Keys\\{THE_DOWNLOADED_JSON_FILE_HERE}.json");
-            }
-            catch (ArgumentNullException)
-            {
-                throw;
-            }
-            catch (ArgumentException)
-            {
-                throw;
-            }
-            catch (SecurityException)
-            {
-                throw;
-            }
-        }
+    //    //private void SetEnvironmentVariable()
+    //    //{
+    //    //    try
+    //    //    {
+    //    //        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", _contentRootPath + "\\Keys\\{THE_DOWNLOADED_JSON_FILE_HERE}.json");
+    //    //    }
+    //    //    catch (ArgumentNullException)
+    //    //    {
+    //    //        throw;
+    //    //    }
+    //    //    catch (ArgumentException)
+    //    //    {
+    //    //        throw;
+    //    //    }
+    //    //    catch (SecurityException)
+    //    //    {
+    //    //        throw;
+    //    //    }
+    //    //}
 
-        private async Task CreateSession()
-        {
-            // Create client
-            _sessionsClient = await SessionsClient.CreateAsync();
-            // Initialize request argument(s)
-            _sessionName = new SessionName(_projectId, _userID);
-        }
+    //    private async Task CreateSession()
+    //    {
+    //        // Create client
+    //        _sessionsClient = await SessionsClient.CreateAsync();
+    //        // Initialize request argument(s)
+    //        _sessionName = new SessionName(_projectId, _userID);
+    //    }
 
-        public async Task<QueryResult> CheckIntent(string userInput, string LanguageCode = "en")
-        {
-            await CreateSession();
-            QueryInput queryInput = new QueryInput();
-            var queryText = new TextInput();
-            queryText.Text = userInput;
-            queryText.LanguageCode = LanguageCode;
-            queryInput.Text = queryText;
+    //    public async Task<QueryResult> CheckIntent(string userInput, string LanguageCode = "en")
+    //    {
+    //        await CreateSession();
+    //        QueryInput queryInput = new QueryInput();
+    //        var queryText = new TextInput();
+    //        queryText.Text = userInput;
+    //        queryText.LanguageCode = LanguageCode;
+    //        queryInput.Text = queryText;
 
-            // Make the request
-            DetectIntentResponse response = await _sessionsClient.DetectIntentAsync(_sessionName, queryInput);
-            return response.QueryResult;
+    //        // Make the request
+    //        DetectIntentResponse response = await _sessionsClient.DetectIntentAsync(_sessionName, queryInput);
+    //        return response.QueryResult;
 
-        }
+    //    }
 
-    }
-
-
-
-   //И тогда это можно назвать так, например, чтобы обнаружить Intents
-
-     DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
-
-    _hostingEnvironment.WebRootPath,
-
-    _hostingEnvironment.ContentRootPath,
-
-    "{INSERT_AGENT_ID");
+    //}
 
 
-    var dialogflowQueryResult = await dialogflow.CheckIntent("{INSERT_USER_INPUT}");
+
+   ////И тогда это можно назвать так, например, чтобы обнаружить Intents
+
+   //  DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
+
+   // _hostingEnvironment.WebRootPath,
+
+   // _hostingEnvironment.ContentRootPath,
+
+   // "{INSERT_AGENT_ID");
+
+    //var dialogflowQueryResult = await dialogflow.CheckIntent("{INSERT_USER_INPUT}");
+
     class Program
     {
         static TelegramBotClient bot;
         static string path = @"D:\\bot\";
         static ApiAi apiAi;
+        static DirectoryInfo directoryInfo = new DirectoryInfo(path);
 
         static void Main(string[] args)
         {
-            //string token = File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
+            //string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
             string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
             //string tokenAi = System.IO.File.ReadAllText(@"small-talk-lckd-8c1d6b8922a0.json");
-            string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
+            //string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
             
-            var dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.IO.File.ReadAllText(dialogFlowKeyFile));
-            var projectID = dic["project_id"];
-            var sessionID = dic["private_key_id"];
+            //var dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.IO.File.ReadAllText(dialogFlowKeyFile));
+            //var projectID = dic["project_id"];
+            //var sessionID = dic["private_key_id"];
            
-            var dialogFlowBuilder = new SessionsClientBuilder
-            {
-                CredentialsPath = dialogFlowKeyFile
-            };
-            var dialogFlowClient = dialogFlowBuilder.Build();
+            //var dialogFlowBuilder = new SessionsClientBuilder
+            //{
+            //    CredentialsPath = dialogFlowKeyFile
+            //};
+            //var dialogFlowClient = dialogFlowBuilder.Build();
            
            
 
@@ -151,25 +152,47 @@ namespace Theme9_TelegramBot
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// обработка кнопок
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
         {
             string buttonText = e.CallbackQuery.Data;
+            if (buttonText == "GetFileList")
+            {
+                GetDir(path).ToString();
+            //    await bot.SendTextMessageAsync(e.CallbackQuery.Id, GetDir(path).ToString());   //Информационное сообщение в чат
+            //    await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, GetDir(path).ToString(), true);
+            }
             string name = $"{e.CallbackQuery.From.FirstName} {e.CallbackQuery.From.LastName}";
             Console.WriteLine($"{name} нажал кнопку {buttonText}");
 
             await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, $"Вы нажали кнопку {buttonText}");
         }
 
+
+        /// <summary>
+        /// слушатель сообщений
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private static async void MessageListener(object sender, MessageEventArgs e)
         {
-            var message = e.Message;
-            string name = $"{message.From.FirstName} {message.From.LastName}";
+            var message = e.Message;                                             //полученное сообщение
+            string name = $"{message.From.FirstName} {message.From.LastName}";   //имя собеседника
 
-            string text = $"{DateTime.Now.ToLongTimeString()}:<< {name} {message.Chat.Id}  *{message.Text}*";
+            string text = $"{DateTime.Now.ToLongTimeString()}:<< {name} {message.Chat.Id}  *{message.Text}*";    //для лога
 
             Console.WriteLine($"{text} TypeMessage: {message.Type.ToString()}");
 
-            var messageText = "Вышли мне что нибудь";    //для ответа
+            var messageText =@"ВАС ПРИВЕТСВУЕТ MEGABOT
+Вышли мне файл и я вышлю его тебе обратно!
+Cписок команд:
+/start - запуск бота
+/inline - вывод меню
+/keyboard - вывод клавиатуры";
             try
             {
                 switch (message.Type)
@@ -182,6 +205,7 @@ namespace Theme9_TelegramBot
                                         " Тип " + message.Type +
                                      ", Размер " + message.Audio.FileSize +
                             " байт, Загружен в " + pathAudio;
+                            
                             break;
                         };
                     case MessageType.Document:   //Если пришло документ
@@ -250,10 +274,12 @@ namespace Theme9_TelegramBot
                             {
                                 case "/start":
                                     messageText = @"ВАС ПРИВЕТСВУЕТ MEGABOT
+Вышли мне файл и я вышлю его тебе обратно!
 Cписок команд:
 /start - запуск бота
 /inline - вывод меню
-/keyboard - вывод клавиатуры";
+/keyboard - вывод клавиатуры
+/ShowMeFiles - просмотр файлов в наличии";
                                    await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
 
                                     break;
@@ -268,11 +294,12 @@ Cписок команд:
                                         },
                                         new[]
                                         {
-                                            InlineKeyboardButton.WithCallbackData("Пункт 1"),
-                                            InlineKeyboardButton.WithCallbackData("Пункт 2")
+                                            InlineKeyboardButton.WithCallbackData("Просмотр файлов","GetFileList"),
+                                            InlineKeyboardButton.WithCallbackData("Выдача файлов")
                                         }
-                                    });
+                                    }); ;
                                     messageText = "Выберите пункт меню:";
+                                    
                                     await bot.SendTextMessageAsync(message.Chat.Id, messageText,
                                                                     replyMarkup:inlinekeyboard);   //Информационное сообщение в чат
                                     break;
@@ -282,7 +309,7 @@ Cписок команд:
                                     {
                                         new[]
                                         {
-                                            new KeyboardButton("Привет!"),
+                                            new KeyboardButton ("Привет!"),
                                             new KeyboardButton("Пока!")
                                         },
                                         new[]
@@ -296,15 +323,24 @@ Cписок команд:
                                                                     replyMarkup: replyKeyboard);   //Информационное сообщение в чат
                                     break;
 
-                                default:
+                               
+                                case "/ShowMeFiles":
+                                    int i = 1;
+                                    foreach (var item in GetDir(path))
+                                    {
+                                        messageText += $"{item}\n";
+                                    }
+                                   await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
+                                    break;
 
-                                    DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
-                                    //var response = 
-                                    //var response = apiAi.TextRequest(message.Text);
-                                    //string answer = response.Result.Fulfillment.Speech;
-                                    //if (answer == "")
-                                    //    answer = "Сорян, не понял тебя.";
-                                    //await bot.SendTextMessageAsync(message.Chat.Id, answer);   //Информационное сообщение в чат
+                                //DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
+                                //var response = 
+                                //var response = apiAi.TextRequest(message.Text);
+                                //string answer = response.Result.Fulfillment.Speech;
+                                //if (answer == "")
+                                //    answer = "Сорян, не понял тебя.";
+                                default:
+                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
                                     break;
                             }
 
@@ -340,6 +376,23 @@ Cписок команд:
                 if (ex != null) Console.WriteLine(ex.Message);
             }
             
+        }
+
+        static List<string> GetDir(string path, string trim = "")
+        {
+          
+            List<string> files = new List<string>();
+
+            int i = 1;
+            foreach (var item in directoryInfo.GetFiles())          // Перебираем все файлы текущего каталога
+            {
+                string file = $"{i}. {trim}{item.Name}";
+                files.Add(file);
+                i++;
+                Console.WriteLine(file);            // Выводим информацию о них
+            }
+
+            return files;
         }
 
     }
