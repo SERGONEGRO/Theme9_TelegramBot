@@ -1,22 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using Telegram.Bot.Types;
-using ApiAiSDK;
-using ApiAiSDK.Util;
-using ApiAiSDK.Model;
-using Newtonsoft.Json;
-using Google.Cloud.Dialogflow.V2;
-using Environment = System.Environment;
 
 // Создать бота, позволяющего принимать разные типы файлов, 
 // *Научить бота отправлять выбранный файл в ответ
@@ -35,114 +23,19 @@ using Environment = System.Environment;
 
 namespace Theme9_TelegramBot
 {
-    //public class DialogflowManager
-    //{
-
-    //    private string _userID;
-    //    private string _webRootPath;
-    //    private string _contentRootPath;
-    //    private string _projectId;
-    //    private SessionsClient _sessionsClient;
-    //    private SessionName _sessionName;
-
-    //    public DialogflowManager(string userID, string webRootPath, string contentRootPath, string projectId)
-    //    {
-    //        _userID = userID;
-    //        _webRootPath = webRootPath;
-    //        _contentRootPath = contentRootPath;
-    //        _projectId = projectId;
-    //        SetEnvironmentVariable();
-    //    }
-
-    //    //private void SetEnvironmentVariable()
-    //    //{
-    //    //    try
-    //    //    {
-    //    //        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", _contentRootPath + "\\Keys\\{THE_DOWNLOADED_JSON_FILE_HERE}.json");
-    //    //    }
-    //    //    catch (ArgumentNullException)
-    //    //    {
-    //    //        throw;
-    //    //    }
-    //    //    catch (ArgumentException)
-    //    //    {
-    //    //        throw;
-    //    //    }
-    //    //    catch (SecurityException)
-    //    //    {
-    //    //        throw;
-    //    //    }
-    //    //}
-
-    //    private async Task CreateSession()
-    //    {
-    //        // Create client
-    //        _sessionsClient = await SessionsClient.CreateAsync();
-    //        // Initialize request argument(s)
-    //        _sessionName = new SessionName(_projectId, _userID);
-    //    }
-
-    //    public async Task<QueryResult> CheckIntent(string userInput, string LanguageCode = "en")
-    //    {
-    //        await CreateSession();
-    //        QueryInput queryInput = new QueryInput();
-    //        var queryText = new TextInput();
-    //        queryText.Text = userInput;
-    //        queryText.LanguageCode = LanguageCode;
-    //        queryInput.Text = queryText;
-
-    //        // Make the request
-    //        DetectIntentResponse response = await _sessionsClient.DetectIntentAsync(_sessionName, queryInput);
-    //        return response.QueryResult;
-
-    //    }
-
-    //}
-
-
-
-   ////И тогда это можно назвать так, например, чтобы обнаружить Intents
-
-   //  DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
-
-   // _hostingEnvironment.WebRootPath,
-
-   // _hostingEnvironment.ContentRootPath,
-
-   // "{INSERT_AGENT_ID");
-
-    //var dialogflowQueryResult = await dialogflow.CheckIntent("{INSERT_USER_INPUT}");
-
+    
     class Program
     {
         static TelegramBotClient bot;
-        static string path = @"E:\\bot\";
-        static ApiAi apiAi;
+        static string path = @"D:\\bot\";
         static DirectoryInfo directoryInfo = new DirectoryInfo(path);
         static bool flag = false;   //flag = true, если ожидается ответ пользователя
 
         static void Main(string[] args)
         {
-            string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
-            //string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
-            //string tokenAi = System.IO.File.ReadAllText(@"small-talk-lckd-8c1d6b8922a0.json");
-            //string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
+            //string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
+            string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
             
-            //var dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.IO.File.ReadAllText(dialogFlowKeyFile));
-            //var projectID = dic["project_id"];
-            //var sessionID = dic["private_key_id"];
-           
-            //var dialogFlowBuilder = new SessionsClientBuilder
-            //{
-            //    CredentialsPath = dialogFlowKeyFile
-            //};
-            //var dialogFlowClient = dialogFlowBuilder.Build();
-           
-           
-
-            //AIConfiguration config = new AIConfiguration(tokenAi, SupportedLanguage.Russian);
-            //apiAi = new ApiAi(config);
-
             bot = new TelegramBotClient(tokentg);
             var me = bot.GetMeAsync().Result;
             Console.WriteLine(me.FirstName);
@@ -158,18 +51,11 @@ namespace Theme9_TelegramBot
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
+        private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)   //test
         {
             string buttonText = e.CallbackQuery.Data;
-            //if (buttonText == "GetFileList")
-            //{
-            //    GetDir(path).ToString();
-            ////    await bot.SendTextMessageAsync(e.CallbackQuery.Id, GetDir(path).ToString());   //Информационное сообщение в чат
-            ////    await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, GetDir(path).ToString(), true);
-            //}
             string name = $"{e.CallbackQuery.From.FirstName} {e.CallbackQuery.From.LastName}";
             Console.WriteLine($"{name} нажал кнопку {buttonText}");
-
             await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, $"Вы нажали кнопку {buttonText}");
         }
 
@@ -253,8 +139,7 @@ Cписок команд:
                             break;
                         };
 
-                    //Photo
-                    case MessageType.Photo:       ////Если пришло фото
+                   case MessageType.Photo:       ////Если пришло фото
                         {
                             string fileNamePhoto = message.Photo[message.Photo.Length - 1].FileUniqueId + ".jpeg";
                             string fileIdPhoto = message.Photo[message.Photo.Length - 1].FileId;
@@ -264,7 +149,7 @@ Cписок команд:
                                         " Тип " + message.Type +
                             // ", Размер " + e.Message.Document.FileSize +   ??
                             ", Загружен в " + pathPhoto;
-                            await bot.SendPhotoAsync(message.Chat.Id, fileIdPhoto);
+                            //await bot.SendPhotoAsync(message.Chat.Id, fileIdPhoto);
                             break;
                         };
                     case MessageType.Text:  //Если текст, то :
@@ -316,10 +201,11 @@ Cписок команд:
 
 
                                 case "/ShowMeFiles":    //показывает все файлы в директории path
-
+                                    int i = 1;
                                     foreach (var item in GetDir(path))
                                     {
-                                        messageText += $"{item}\n";
+                                        messageText += $"{i}. {item}\n";
+                                        i++;
                                     }
                                     await bot.SendTextMessageAsync(message.Chat.Id, messageText);   
                                     break;
@@ -334,16 +220,8 @@ Cписок команд:
                                     else goto default;
                                     break;
 
-                                //DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
-                                //var response = 
-                                //var response = apiAi.TextRequest(message.Text);
-                                //string answer = response.Result.Fulfillment.Speech;
-                                //if (answer == "")
-                                //    answer = "Сорян, не понял тебя.";
-
-
                                 default:
-                                    if (flag)
+                                    if (flag)   //если ожидается ввод номера файла
                                     {
                                         int fileNumber = Int32.Parse(message.Text);
                                         
@@ -351,35 +229,32 @@ Cписок команд:
                                         string currentFile = path + GetCurrentFile(fileNumber);
                                         string extension = Path.GetExtension(currentFile); // определяем расширение
                                         await bot.SendTextMessageAsync(message.Chat.Id, currentFile);
-                                        switch (extension)
+
+                                        using (var stream = System.IO.File.OpenRead(currentFile))
                                         {
-                                            //https://github.com/sergshu/LearnTogether/blob/master/TelegramBotIsSimple/TelegraBotHelper.cs
-
-                                            case ".mp3":
-                                                using (var stream = System.IO.File.OpenRead(currentFile))
-                                                {
-                                                    //await bot.SendTextMessageAsync(message.Chat.Id, currentFile);
+                                            switch (extension.ToLower())
+                                            {
+                                                case ".mp3":
                                                     await bot.SendAudioAsync(message.Chat.Id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(stream));
-                                                }
-
-                                                //InputMediaAudio audioFile = new InputMediaAudio(currentFile);
-                                                ////InputMedia audioFile = new InputMedia(currentFile);
-                                                //await bot.SendAudioAsync(message.Chat.Id, currentFile);
-                                                break;
-                                            case "":
-                                                break;
-                                            //case "":
-                                            //    break;
-                                            //case "":
-                                            //    break;
-                                            //case "":
-                                            //    break;
-                                            default:
-                                                //bot.SendDocumentAsync(message.Chat.Id, currentFile);
-                                                break;
-
+                                                    break;
+                                                case ".mp4":
+                                                    await bot.SendVideoAsync(message.Chat.Id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(stream));
+                                                    break;
+                                                case ".jpeg":
+                                                    await bot.SendPhotoAsync(message.Chat.Id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(stream));
+                                                    break;
+                                                case ".mov":
+                                                    await bot.SendVideoAsync(message.Chat.Id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(stream));
+                                                    break;
+                                                case ".pdf":
+                                                    await bot.SendDocumentAsync(message.Chat.Id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(stream));
+                                                    break;
+                                                default:
+                                                    await bot.SendDocumentAsync(message.Chat.Id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(stream));
+                                                    break;
+                                            }
+                                            flag = false;
                                         }
-                                        flag = false;
                                     }
                                     await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //По умолчанию отсылает меню
 
@@ -404,7 +279,6 @@ Cписок команд:
             catch (Exception ex)
             {
                 messageText = ex.Message;
-                //throw;
             }
            
             
@@ -441,9 +315,7 @@ Cписок команд:
                 string file = $"{trim}{item.Name}";
                 files.Add(file);
                 i++;
-                //Console.WriteLine(file);            // Выводим информацию о них
             }
-
             return files;
         }
 
