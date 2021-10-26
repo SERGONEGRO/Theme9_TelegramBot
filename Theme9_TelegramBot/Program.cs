@@ -267,6 +267,7 @@ Cписок команд:
                     default:
                         {
                             messageText = "Такие файлы я еще не могу принимать!";   //Если файл непонятный:
+                            await bot.SendTextMessageAsync(message.Chat.Id, messageText);
                             break;
                         }
 
