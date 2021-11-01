@@ -271,10 +271,6 @@ Cписок команд:
                             break;
                         }
 
-                    
-
-                   
-
                 }
             }
             catch (Exception ex)
