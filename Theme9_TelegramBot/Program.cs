@@ -26,7 +26,6 @@ using Environment = System.Environment;
 // 
 // https://vk.com/dev
 // https://vk.com/dev/manuals
-
 // https://dev.twitch.tv/
 // https://discordapp.com/developers/docs/intro
 // https://discordapp.com/developers/applications/
@@ -35,96 +34,27 @@ using Environment = System.Environment;
 
 namespace Theme9_TelegramBot
 {
-    //public class DialogflowManager
-    //{
-
-    //    private string _userID;
-    //    private string _webRootPath;
-    //    private string _contentRootPath;
-    //    private string _projectId;
-    //    private SessionsClient _sessionsClient;
-    //    private SessionName _sessionName;
-
-    //    public DialogflowManager(string userID, string webRootPath, string contentRootPath, string projectId)
-    //    {
-    //        _userID = userID;
-    //        _webRootPath = webRootPath;
-    //        _contentRootPath = contentRootPath;
-    //        _projectId = projectId;
-    //        SetEnvironmentVariable();
-    //    }
-
-    //    //private void SetEnvironmentVariable()
-    //    //{
-    //    //    try
-    //    //    {
-    //    //        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", _contentRootPath + "\\Keys\\{THE_DOWNLOADED_JSON_FILE_HERE}.json");
-    //    //    }
-    //    //    catch (ArgumentNullException)
-    //    //    {
-    //    //        throw;
-    //    //    }
-    //    //    catch (ArgumentException)
-    //    //    {
-    //    //        throw;
-    //    //    }
-    //    //    catch (SecurityException)
-    //    //    {
-    //    //        throw;
-    //    //    }
-    //    //}
-
-    //    private async Task CreateSession()
-    //    {
-    //        // Create client
-    //        _sessionsClient = await SessionsClient.CreateAsync();
-    //        // Initialize request argument(s)
-    //        _sessionName = new SessionName(_projectId, _userID);
-    //    }
-
-    //    public async Task<QueryResult> CheckIntent(string userInput, string LanguageCode = "en")
-    //    {
-    //        await CreateSession();
-    //        QueryInput queryInput = new QueryInput();
-    //        var queryText = new TextInput();
-    //        queryText.Text = userInput;
-    //        queryText.LanguageCode = LanguageCode;
-    //        queryInput.Text = queryText;
-
-    //        // Make the request
-    //        DetectIntentResponse response = await _sessionsClient.DetectIntentAsync(_sessionName, queryInput);
-    //        return response.QueryResult;
-
-    //    }
-
-    //}
-
-
-
-   ////И тогда это можно назвать так, например, чтобы обнаружить Intents
-
-   //  DialogflowManager dialogflow = new DialogflowManager("{INSERT_USER_ID}",
-
-   // _hostingEnvironment.WebRootPath,
-
-   // _hostingEnvironment.ContentRootPath,
-
-   // "{INSERT_AGENT_ID");
-
-    //var dialogflowQueryResult = await dialogflow.CheckIntent("{INSERT_USER_INPUT}");
+    
 
     class Program
     {
+    //    //И тогда это можно назвать так, например, чтобы обнаружить Intents
+    //    DialogFlowManager dialogflow = new DialogFlowManager("{INSERT_USER_ID}",
+    //   _hostingEnvironment.WebRootPath,
+    //   _hostingEnvironment.ContentRootPath,
+    //   "{INSERT_AGENT_ID");
+    //    var dialogflowQueryResult = await dialogflow.CheckIntent("{INSERT_USER_INPUT}");
+
         static TelegramBotClient bot;
-        static string path = @"E:\\bot\";
+        static string path = @"D:\\bot\";
         static ApiAi apiAi;
         static DirectoryInfo directoryInfo = new DirectoryInfo(path);
         static bool flag = false;   //flag = true, если ожидается ответ пользователя
 
         static void Main(string[] args)
         {
-            string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
-            //string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
+            //string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
+            string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
             //string tokenAi = System.IO.File.ReadAllText(@"small-talk-lckd-8c1d6b8922a0.json");
             //string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
             
