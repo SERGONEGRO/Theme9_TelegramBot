@@ -54,7 +54,7 @@ namespace Theme9_TelegramBot
         static void Main(string[] args)
         {
             //string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
-            string tokentg = System.IO.File.ReadAllText(@"C:\Users\User\YandexDisk\token1.txt");
+            string tokentg = System.IO.File.ReadAllText(@"D:\temp\token1.txt");
             //string tokenAi = System.IO.File.ReadAllText(@"small-talk-lckd-8c1d6b8922a0.json");
             //string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
             
