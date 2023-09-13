@@ -1,77 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
-using Telegram.Bot.Types;
-using ApiAiSDK;
-using ApiAiSDK.Util;
-using ApiAiSDK.Model;
-using Newtonsoft.Json;
-using Google.Cloud.Dialogflow.V2;
-using Environment = System.Environment;
-
-// Создать бота, позволяющего принимать разные типы файлов, 
-// *Научить бота отправлять выбранный файл в ответ
-// 
-// https://data.mos.ru/
-// https://apidata.mos.ru/
-// 
-// https://vk.com/dev
-// https://vk.com/dev/manuals
-// https://dev.twitch.tv/
-// https://discordapp.com/developers/docs/intro
-// https://discordapp.com/developers/applications/
-// https://discordapp.com/verification
-
+using Telegram.Bot.Types.InputFiles;
 
 namespace Theme9_TelegramBot
 {
-
-
-    class Program
+    class Program : UrlGenerator
     {
-        //    //И тогда это можно назвать так, например, чтобы обнаружить Intents
-        //    DialogFlowManager dialogflow = new DialogFlowManager("{INSERT_USER_ID}",
-        //   _hostingEnvironment.WebRootPath,
-        //   _hostingEnvironment.ContentRootPath,
-        //   "{INSERT_AGENT_ID");
-        //    var dialogflowQueryResult = await dialogflow.CheckIntent("{INSERT_USER_INPUT}");
-
         static TelegramBotClient bot;
-        static string path = @"D:\\bot\";
-        static ApiAi apiAi;
-        static DirectoryInfo directoryInfo = new DirectoryInfo(path);
-        static bool flag = false;   //flag = true, если ожидается ответ пользователя
+        static string path = @"D:\temp\bot\";
 
         static void Main(string[] args)
         {
-            //string tokentg = System.IO.File.ReadAllText(@"D:\programms\Яндекс диск\Синхронизация\YandexDisk\token1.txt");
-            string tokentg = System.IO.File.ReadAllText(@"D:\temp\token1.txt");
-            //string tokenAi = System.IO.File.ReadAllText(@"small-talk-lckd-8c1d6b8922a0.json");
-            //string dialogFlowKeyFile = @"small-talk-lckd-8c1d6b8922a0.json";
-
-            //var dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.IO.File.ReadAllText(dialogFlowKeyFile));
-            //var projectID = dic["project_id"];
-            //var sessionID = dic["private_key_id"];
-
-            //var dialogFlowBuilder = new SessionsClientBuilder
-            //{
-            //    CredentialsPath = dialogFlowKeyFile
-            //};
-            //var dialogFlowClient = dialogFlowBuilder.Build();
-
-
-
-            //AIConfiguration config = new AIConfiguration(tokenAi, SupportedLanguage.Russian);
-            //apiAi = new ApiAi(config);
+            string tokentg = File.ReadAllText(@"D:\temp\bot\token1.txt");
 
             bot = new TelegramBotClient(tokentg);
             var me = bot.GetMeAsync().Result;
@@ -91,18 +35,10 @@ namespace Theme9_TelegramBot
         private static async void BotOnCallbackQueryReceived(object sender, CallbackQueryEventArgs e)
         {
             string buttonText = e.CallbackQuery.Data;
-            //if (buttonText == "GetFileList")
-            //{
-            //    GetDir(path).ToString();
-            ////    await bot.SendTextMessageAsync(e.CallbackQuery.Id, GetDir(path).ToString());   //Информационное сообщение в чат
-            ////    await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, GetDir(path).ToString(), true);
-            //}
             string name = $"{e.CallbackQuery.From.FirstName} {e.CallbackQuery.From.LastName}";
             Console.WriteLine($"{name} нажал кнопку {buttonText}");
-
             await bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id, $"Вы нажали кнопку {buttonText}");
         }
-
 
         /// <summary>
         /// слушатель сообщений
@@ -116,13 +52,14 @@ namespace Theme9_TelegramBot
 
             string text = $"{DateTime.Now.ToLongTimeString()}:<< {name} {message.Chat.Id}  *{message.Text}*";    //для лога
 
-            Console.WriteLine($"{text} TypeMessage: {message.Type.ToString()}");
+            Console.WriteLine($"{text} TypeMessage: {message.Type}");
 
             var messageText = @"ВАС ПРИВЕТСВУЕТ MEGABOT
 Введи команду и я пришлю тебе пятничный мем!
 Cписок команд:
-/random - рандомный мем
-/myText - ввести текст" + "\n";
+/random - рандомный мем"
+//myText - ввести текст
++ "\n";
 
             try
             {
@@ -134,7 +71,7 @@ Cписок команд:
                             string fileNamePhoto = message.Photo[message.Photo.Length - 1].FileUniqueId + ".jpeg";
                             string fileIdPhoto = message.Photo[message.Photo.Length - 1].FileId;
                             string pathPhoto = path + fileNamePhoto;
-                            DownLoad(fileIdPhoto, pathPhoto);
+                            //SaveToDisc(fileIdPhoto, pathPhoto);
                             messageText = "Файл " + fileNamePhoto +
                                         " Тип " + message.Type +
                             // ", Размер " + e.Message.Document.FileSize +   ??
@@ -142,19 +79,34 @@ Cписок команд:
                             await bot.SendPhotoAsync(message.Chat.Id, fileIdPhoto);
                             break;
                         };
+
                     case MessageType.Text:  //Если текст, то :
                         {
                             switch (message.Text)
                             {
                                 case "/myText":
-                                    await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
-                                    break;
+                                    {
+                                        await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
+                                        break;
+                                    }
                                 default:
-                                    DownLoad("https://apimeme.com/meme?meme=Neil-deGrasse-Tyson&top=Заполнил табель&bottom=Bitch", "D:\\temp\\mem.jpeg");
-                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
-                                    break;
+                                    {
+                                        UrlGenerator gen = new UrlGenerator();
+                                        string memPath = $"D:\\temp\\bot\\mem-{Guid.NewGuid()}.jpeg";
+                                        DownLoad(gen.GenerateURL(), memPath);
+                                        using (var fileStream = new FileStream(memPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                                        {
+                                            await bot.SendPhotoAsync(
+                                                chatId: message.Chat.Id,
+                                                photo: new InputOnlineFile(fileStream)
+                                            );
+                                        }
+                                        await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
+                                        break;
+                                    }
                             }
-                        }
+                            break;
+                        };
 
                     default:
                         {
@@ -169,9 +121,17 @@ Cписок команд:
                 //throw;
             }
 
-
-
             Console.WriteLine($"{DateTime.Now.ToLongTimeString()}:>> {message.Chat.FirstName} {message.Chat.Id} *{messageText}*");//Информационное сообщение в консоль
+        }
+
+        private static async void SaveToDisc(string fileIdPhoto, string pathPhoto)
+        {
+            var file = await bot.GetFileAsync(fileIdPhoto);
+            FileStream fs = new FileStream(path, FileMode.Create);
+            await bot.DownloadFileAsync(file.FilePath, fs);
+            fs.Close();
+
+            fs.Dispose();
         }
 
         static async void DownLoad(string url, string path)
@@ -182,44 +142,11 @@ Cписок команд:
                 {
                     client.DownloadFile(url, path);
                 }
-
-                //var file = await bot.GetFileAsync(fileId);
-                //FileStream fs = new FileStream(path, FileMode.Create);
-                //await bot.DownloadFileAsync(file.FilePath, fs);
-                //fs.Close();
-
-                //fs.Dispose();
             }
             catch (Exception ex)
             {
                 if (ex != null) Console.WriteLine(ex.Message);
             }
-
         }
-
-        static List<string> GetDir(string path, string trim = "")
-        {
-
-            List<string> files = new List<string>();
-
-            int i = 1;
-            foreach (var item in directoryInfo.GetFiles())          // Перебираем все файлы текущего каталога
-            {
-                string file = $"{trim}{item.Name}";
-                files.Add(file);
-                i++;
-                //Console.WriteLine(file);            // Выводим информацию о них
-            }
-
-            return files;
-        }
-
-        static string GetCurrentFile(int number)
-        {
-            List<string> files = GetDir(path);
-
-            return files[number - 1];
-        }
-
     }
 }
