@@ -144,9 +144,16 @@ Cписок команд:
                         };
                     case MessageType.Text:  //Если текст, то :
                         {
-                            DownLoad("https://apimeme.com/meme?meme=Neil-deGrasse-Tyson&top=Заполнил табель&bottom=Bitch", "D:\\temp\\mem.jpeg");
-                            await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
-                            break;
+                            switch (message.Text)
+                            {
+                                case "/myText":
+                                    await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
+                                    break;
+                                default:
+                                    DownLoad("https://apimeme.com/meme?meme=Neil-deGrasse-Tyson&top=Заполнил табель&bottom=Bitch", "D:\\temp\\mem.jpeg");
+                                    await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
+                                    break;
+                            }
                         }
 
                     default:
