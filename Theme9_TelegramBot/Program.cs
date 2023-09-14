@@ -54,13 +54,12 @@ namespace Theme9_TelegramBot
 
             Console.WriteLine($"{text} TypeMessage: {message.Type}");
 
-            var messageText = @"ВАС ПРИВЕТСВУЕТ MEGABOT
+            var greetingsText = @"ВАС ПРИВЕТСВУЕТ MEGABOT
 Введи команду и я пришлю тебе пятничный мем!
 Cписок команд:
 /random - рандомный мем"
 //myText - ввести текст
 + "\n";
-
             try
             {
                 switch (message.Type)
@@ -72,7 +71,7 @@ Cписок команд:
                             string fileIdPhoto = message.Photo[message.Photo.Length - 1].FileId;
                             string pathPhoto = path + fileNamePhoto;
                             //SaveToDisc(fileIdPhoto, pathPhoto);
-                            messageText = "Файл " + fileNamePhoto +
+                            greetingsText = "Файл " + fileNamePhoto +
                                         " Тип " + message.Type +
                             // ", Размер " + e.Message.Document.FileSize +   ??
                             ", Загружен в " + pathPhoto;
@@ -86,7 +85,7 @@ Cписок команд:
                             {
                                 case "/myText":
                                     {
-                                        await bot.SendTextMessageAsync(message.From.Id, messageText); //Информационное сообщение в чат
+                                        await bot.SendTextMessageAsync(message.From.Id, greetingsText); //Информационное сообщение в чат
                                         break;
                                     }
                                 default:
@@ -101,7 +100,8 @@ Cписок команд:
                                                 photo: new InputOnlineFile(fileStream)
                                             );
                                         }
-                                        await bot.SendTextMessageAsync(message.Chat.Id, messageText);   //Информационное сообщение в чат
+                                        await bot.SendTextMessageAsync(message.Chat.Id, greetingsText);   //Информационное сообщение в чат
+                                        greetingsText = memPath;
                                         break;
                                     }
                             }
@@ -110,18 +110,18 @@ Cписок команд:
 
                     default:
                         {
-                            messageText = "Такие файлы я еще не могу принимать!";   //Если файл непонятный:
+                            greetingsText = "Такие файлы я еще не могу принимать!";   //Если файл непонятный:
                             break;
                         }
                 }
             }
             catch (Exception ex)
             {
-                messageText = ex.Message;
+                greetingsText = ex.Message;
                 //throw;
             }
 
-            Console.WriteLine($"{DateTime.Now.ToLongTimeString()}:>> {message.Chat.FirstName} {message.Chat.Id} *{messageText}*");//Информационное сообщение в консоль
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()}:>> {message.Chat.FirstName} {message.Chat.Id} *{greetingsText}*");//Информационное сообщение в консоль
         }
 
         private static async void SaveToDisc(string fileIdPhoto, string pathPhoto)

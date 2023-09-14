@@ -1,23 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.Bot;
-using Telegram.Bot.Args;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
-using Telegram.Bot.Types;
-using ApiAiSDK;
-using ApiAiSDK.Util;
-using ApiAiSDK.Model;
-using Newtonsoft.Json;
-using Google.Cloud.Dialogflow.V2;
-using Environment = System.Environment;
+﻿using Google.Cloud.Dialogflow.V2;
+using System;
 using System.Security;
+using System.Threading.Tasks;
+using Environment = System.Environment;
 
 namespace Theme9_TelegramBot
 {
